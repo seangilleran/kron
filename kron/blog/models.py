@@ -1,10 +1,10 @@
-from kron.models import db
+from kron import db
 
 
 tags_posts = db.Table(
     "tags_posts",
-    db.Column("post_tag_id", db.Integer, db.ForeignKey("post_tag.id")),
-    db.Column("post_id", db.Integer, db.ForeignKey("post.id"))
+    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id")),
+    db.Column("post_id", db.Integer, db.ForeignKey("posts.id"))
 )
 
 
@@ -24,8 +24,8 @@ class Post(db.Model):
         return "<Post {id}>".format(id=self.id)
 
 
-class PostTag(db.Model):
-    __tablename__ = "post_tags"
+class Tag(db.Model):
+    __tablename__ = "tags"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
 

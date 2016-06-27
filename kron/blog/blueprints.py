@@ -1,9 +1,7 @@
-import flask
-
-import kron.blog.models as models
+from flask import Blueprint
 
 
-blog = flask.Blueprint("blog", __name__, template_folder="templates")
+blog = Blueprint("blog", __name__, template_folder="templates")
 
 
 @blog.route("/")
