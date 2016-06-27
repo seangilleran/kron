@@ -1,4 +1,4 @@
-from kron import db
+from kron.models import db
 
 
 tags_posts = db.Table(
