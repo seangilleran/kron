@@ -5,8 +5,8 @@ from flask_script import Manager
 
 from kron.app import create_app
 import kron.models as models
-import kron.blog.blueprints as blog_blueprints
 import kron.blog.models as blog_models
+import kron.blog.blueprints as blog_blueprints
 
 
 app = create_app(models.db, [blog_blueprints.blog])
