@@ -17,7 +17,6 @@ boxes_topics = db.Table(
 class Box(db.Model):
     __tablename__ = "boxes"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128))
     number = db.Column(db.Integer)
     archive_id = db.Column(db.Integer, db.ForeignKey("archives.id"))
     people = db.relationship("Person", secondary=boxes_people, backref="boxes")
@@ -26,4 +25,4 @@ class Box(db.Model):
     notes = db.relationship("Note", backref="box")
 
     def __repr__(self):
-        return "<Box #{num}".format(num=self.number)
+        return "<Box #{num}>".format(num=self.number)

@@ -6,51 +6,45 @@ from kron import create_app, db, models
 class ModelsTestCase(unittest.TestCase):
 
     def test_create_db_entries(self):
-        archive = models.Archive.query.first()
-        self.assertTrue(archive and archive.name == "Giant Bomb")
-
-        box = models.Box.query.first()
-        self.assertTrue(box and box.number == 24)
-
-        document = models.Document.query.first()
-        self.assertTrue(document and document.title == "A Letter to Brad")
-
-        note = models.Note.query.first()
-        self.assertTrue(note and note.body == "This one looks odd.")
-
-        person = models.Person.query.first()
-        self.assertTrue(person and person.name == "Ryan Davis")
-
-        topic = models.Topic.query.first()
-        self.assertTrue(topic and topic.name == "Video Games")
+        self.assertTrue(
+            models.Archive.query.first() and
+            models.Box.query.first() and
+            models.Citation.query.first() and
+            models.Document.query.first() and
+            models.Note.query.first() and
+            models.Person.query.first() and
+            models.Topic.query.first()
+        )
 
     def test_add_box_to_archive(self):
-        box = models.Box.query.first()
-        self.assertFalse(box.archive)
-
-        archive = models.Archive.query.first()
-        box.archive = archive
-        db.session.add(box)
-        db.session.commit()
-        box_out = models.Box.query.first()
-        self.assertTrue(box_out.archive and box_out.archive.id == archive.id)
+        a = models.Archive.query.first()
+        b = models.Box(number=15)
+        a.boxes.append(b)
+        self.assertTrue(a.boxes[0] == b and b.archive == a)
 
     def test_add_notes_to_archive(self):
-        archive = models.Archive.query.first()
-        self.assertFalse(archive.notes)
+        a = models.Archive.query.first()
+        n = models.Note(body="Test")
+        a.notes.append(n)
+        self.assertTrue(a.notes[0] == n and n.archive == a)
 
-        n1 = models.Note(body="Hello")
-        n2 = models.Note(body="Testing")
-        db.session.add_all([n1, n2])
-        db.session.commit()
-        self.assertTrue(n1.id and n2.id)
+    def test_add_archive_to_box(self):
+        b = models.Box.query.first()
+        a = models.Archive(name="Test")
+        b.archive = a
+        self.assertTrue(b.archive == a and a.boxes[0] == b)
 
-        archive.notes.append(n1)
-        archive.notes.append(n2)
-        db.session.add(archive)
-        db.session.commit()
-        archive_out = models.Archive.query.first()
-        self.assertTrue(archive_out.notes[1].body == "Testing")
+    def test_add_citation_to_person(self):
+        c = models.Citation.query.first()
+        p = models.Person.query.first()
+        p.citations.append(c)
+        self.assertTrue(p.citations[0] == c and c.people[0] == p)
+
+    def test_add_citation_to_topic(self):
+        c = models.Citation.query.first()
+        t = models.Topic.query.first()
+        c.topics.append(t)
+        self.assertTrue(c.topics[0] == t and t.citations[0] == c)
 
     def setUp(self):
         self.app = create_app()
@@ -60,6 +54,7 @@ class ModelsTestCase(unittest.TestCase):
         db.session.add_all([
             models.Archive(name="Giant Bomb"),
             models.Box(number=24),
+            models.Citation(location="Groovy Science, 50"),
             models.Document(title="A Letter to Brad"),
             models.Note(body="This one looks odd."),
             models.Person(name="Ryan Davis"),

@@ -9,4 +9,4 @@ class Archive(db.Model):
     notes = db.relationship("Note", backref="archive")
 
     def __repr__(self):
-        return "<Archive {name}".format(name=self.name)
+        return "<Archive {name}>".format(name=self.name)

@@ -1,3 +1,5 @@
+import json
+
 from kron import db
 
 
@@ -17,11 +19,34 @@ class Post(db.Model):
     html = db.Column(db.Text)
     tags = db.relationship(
         "Tag", secondary=tags_posts,
-        backref=db.backref("tags_posts", lazy="joined")
+        backref=db.backref("posts", lazy="joined")
     )
 
     def __repr__(self):
         return "<Post {id}>".format(id=self.id)
+
+    def to_json(self):
+        data = {
+            "id": self.id,
+            "title": self.title,
+            "timestamp": self.timestamp,
+            "body": self.body,
+            "html": self.html,
+            "tags": [t.name for t in self.tags]
+        }
+        return json.dumps(data)
+
+    @staticmethod
+    def from_json(data):
+        post = json.loads(data)
+        return Post(
+            title=post.get("title"),
+            timestamp=post.get("timestamp"),
+            body=post.get("body"),
+            html=post.get("html"),
+            tags=[Tag.query.filter_by(name=t).first() for
+                  t in post.get("tags")]
+        )
 
 
 class Tag(db.Model):
@@ -31,3 +56,6 @@ class Tag(db.Model):
 
     def __repr__(self):
         return "<Tag {name}>".format(name=self.name)
+
+    def url(self):
+        return url_for("tag", id=self.id)

@@ -8,6 +8,7 @@ class Note(db.Model):
     html = db.Column(db.Text)
     archive_id = db.Column(db.Integer, db.ForeignKey("archives.id"))
     box_id = db.Column(db.Integer, db.ForeignKey("boxes.id"))
+    citation_id = db.Column(db.Integer, db.ForeignKey("citations.id"))
     document_id = db.Column(db.Integer, db.ForeignKey("documents.id"))
     person_id = db.Column(db.Integer, db.ForeignKey("people.id"))
     topic_id = db.Column(db.Integer, db.ForeignKey("topics.id"))
