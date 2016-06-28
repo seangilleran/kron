@@ -1,4 +1,4 @@
-import json
+from flask import url_for
 
 from kron import db
 
@@ -22,31 +22,38 @@ class Post(db.Model):
         backref=db.backref("posts", lazy="joined")
     )
 
-    def __repr__(self):
-        return "<Post {id}>".format(id=self.id)
-
-    def to_json(self):
-        data = {
-            "id": self.id,
-            "title": self.title,
-            "timestamp": self.timestamp,
-            "body": self.body,
-            "html": self.html,
-            "tags": [t.name for t in self.tags]
-        }
-        return json.dumps(data)
-
     @staticmethod
     def from_json(data):
-        post = json.loads(data)
+        try:
+            json_data = json.loads(data)
+        except:
+            return None
         return Post(
-            title=post.get("title"),
-            timestamp=post.get("timestamp"),
-            body=post.get("body"),
-            html=post.get("html"),
-            tags=[Tag.query.filter_by(name=t).first() for
-                  t in post.get("tags")]
+            title=json_data.get("title"),
+            timestamp=datetime.strptime(
+                json_data.get("timestamp"), "%m %d %Y"),
+            body=json_data.get("body"),
+            tags=[Tag.query.filter_by(t=id).first() for
+                  t in json_data.get("tag_ids")]
         )
+
+    def get_url(self, full=False):
+        return url_for("blog.get_post", id=self.id, _external=full)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "timestamp": self.timestamp.strftime("%m %d %Y"),
+            "body": self.body,
+            "html": self.html,
+            "tags": [t.get_url() for t in self.tags],
+            "tag_ids": [t.id for t in self.tags],
+            "url": self.get_url()
+        }
+
+    def __repr__(self):
+        return "<Post {id}>".format(id=self.id)
 
 
 class Tag(db.Model):
@@ -54,8 +61,16 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
 
+    def get_url(self, full=False):
+        return url_for("blog.get_tag", id=self.id, _external=full)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "posts": [p.get_url() for p in self.posts],
+            "post_ids": [p.id for p in self.posts]
+        }
+
     def __repr__(self):
         return "<Tag {name}>".format(name=self.name)
-
-    def url(self):
-        return url_for("tag", id=self.id)

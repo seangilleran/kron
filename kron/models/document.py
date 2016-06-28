@@ -1,3 +1,5 @@
+import json
+
 from kron import db
 
 
@@ -23,7 +25,7 @@ documents_topics = db.Table(
 class Document(db.Model):
     __tablename__ = "documents"
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128))
+    title = db.Column(db.String(128), unique=True)
     authors = db.relationship("Person", secondary=documents_authors,
                               backref="documents_by")
     people = db.relationship("Person", secondary=documents_people,
@@ -31,7 +33,20 @@ class Document(db.Model):
     topics = db.relationship("Topic", secondary=documents_topics,
                              backref="documents")
     box_id = db.Column(db.Integer, db.ForeignKey("boxes.id"))
-    notes = db.relationship("Note", backref="document")
+    last_update = db.Column(db.DateTime)
+    notes = db.Column(db.Text)
+
+    def to_json(self):
+        return json.dumps({
+            "id": self.id,
+            "title": self.title,
+            "authors": [a.name for a in self.authors],
+            "people": [p.name for p in self.people],
+            "topics": [t.name for t in self.topics],
+            "box": self.box.number,
+            "last_update": self.last_update,
+            "notes": self.notes
+        })
 
     def __repr__(self):
         return "<Document \"{title}\">".format(title=self.title)
