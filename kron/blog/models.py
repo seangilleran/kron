@@ -65,7 +65,7 @@ class Post(db.Model):
         }
 
     def get_url(self, full=False):
-        return url_for("blog.get_post", id=self.id, _external=full)
+        return url_for("blog_api.get_post", id=self.id, _external=full)
 
     def __repr__(self):
         return "<Post {id}>".format(id=self.id)
@@ -106,7 +106,7 @@ class Tag(db.Model):
         }
 
     def get_url(self, full=False):
-        return url_for("blog.get_tag", id=self.id, _external=full)
+        return url_for("blog_api.get_tag", id=self.id, _external=full)
 
     def __repr__(self):
         return "<Tag {name}>".format(name=self.name)
