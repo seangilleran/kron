@@ -56,7 +56,7 @@ def fake_data():
     db.session.commit()
     print("Done!")
 
-    arc = Archive(name="Barkarama")
+    arc = Archive(name="Barkarama Karama Ding")
     db.session.add(arc)
     db.session.commit()
 
