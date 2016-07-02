@@ -1,8 +1,6 @@
-import uuid
-
 from flask import Flask, make_response, jsonify
 
-from kron import db
+from kron import db, uniqid
 import kron.exceptions
 from kron.blog.blueprints import blog
 from kron.blog.api import blog_api
@@ -12,7 +10,7 @@ def create_app():
     """Create a new application instance."""
     app = Flask(__name__)
     app.config.update(
-        SECRET_KEY=str(uuid.uuid4()),
+        SECRET_KEY=uniqid() * 4,
         SQLALCHEMY_DATABASE_URI="sqlite:///kron_data.sqlite",
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )

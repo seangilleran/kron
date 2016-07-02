@@ -21,7 +21,7 @@ def get_posts():
     ))
 
 
-@blog_api.route("/posts/<int:id>")
+@blog_api.route("/posts/<id>")
 def get_post(id):
     """Get a specific Post by Post.id"""
     post = Post.query.filter_by(id=id).first()
@@ -63,61 +63,41 @@ def new_post():
     return res
 
 
-@blog_api.route("/posts/<int:id>/tags", methods=["PUT"])
-def add_tags_to_post(id):
-    """Add a set of Tags to a Post.tags by Post.id"""
+@blog_api.route("/posts/<id>/tags/<name>", methods=["PUT"])
+def add_tag_to_post(id, name):
+    """Add a Tag by Tag.name to a Post.tags by Post.id"""
     post = Post.query.filter_by(id=id).first()
-    if not post:
+    tag = Tag.query.filter_by(name=name).first()
+    if not post or not tag:
         raise APINotFound()
-    data = request.get_json()
-    if not data or not data.get("tags"):
-        raise APIInvalidUsage("Missing tags data")
-    tags = []
-    for t in data["tags"]:
-        tag = Tag.query.filter_by(name=t).first()
-        if not tag:
-            raise APIInvalidUsage("No such tag: " + t)
-        if tag not in post.tags:
-            tags.append(tag)
-            post.tags.append(tag)
+    if tag in post.tags:
+        raise APIInvalidUsage("{p} already has {t}".format(p=post, t=tag))
+    post.tags.append(tag)
     db.session.add(post)
     db.session.commit()
     res = make_response(jsonify(dict(
-        message="Added {n} tags to {p}".format(n=len(tags), p=post),
-        post=post.get_url()
+        message="Added {t} to {p}".format(t=tag, p=post),
+        post_url=post.get_url(),
+        tag_url=tag.get_url()
     )))
-    res.headers["Location"]=post.get_url()
+    res.headers["Location"] = post.get_url()
     return res
 
 
-@blog_api.route("/posts/<int:id>/tags", methods=["DELETE"])
-def remove_tags_from_post(id):
-    """Remove a set of Tags from a Post.tags by Post.id"""
+@blog_api.route("/posts/<id>/tags/<name>", methods=["DELETE"])
+def remove_tag_from_post(id, name):
+    """Remove a Tag by Tag.name from a Post.tags by Post.id"""
     post = Post.query.filter_by(id=id).first()
-    if not post:
+    tag = Tag.query.filter_by(name=name).first()
+    if not post or not tag or not tag in post.tags:
         raise APINotFound()
-    data = request.get_json()
-    if not data or not data.get("tags"):
-        raise APIInvalidUsage("Missing tags data")
-    tags = []
-    for t in data["tags"]:
-        tag = Tag.query.filter_by(name=t).first()
-        if not tag:
-            raise APIInvalidUsage("No such tag: " + t)
-        if tag in post.tags:
-            tags.append(tag)
-            post.tags.remove(tag)
+    post.tags.remove(tag)
     db.session.add(post)
     db.session.commit()
-    res = make_response(jsonify(dict(
-        message="Removed {n} tags from {p}".format(n=len(tags), p=post),
-        post=post.get_url()
-    )))
-    res.headers["Location"]=post.get_url()
-    return res
+    return ("", 204)
 
 
-@blog_api.route("/posts/<int:id>", methods=["PUT"])
+@blog_api.route("/posts/<id>", methods=["PUT"])
 def update_post(id):
     """Update a Post by Post.id"""
     post = Post.query.filter_by(id=id).first()
@@ -140,7 +120,7 @@ def update_post(id):
     return res
 
 
-@blog_api.route("/posts/<int:id>", methods=["DELETE"])
+@blog_api.route("/posts/<id>", methods=["DELETE"])
 def delete_post(id):
     """Delete a Post by Post.id"""
     post = Post.query.filter_by(id=id).first()
@@ -178,11 +158,11 @@ def new_tag():
         raise APIInvalidUsage("Missing tags data")
     tags = []
     for t in data["tags"]:
-        if not t.get("name") or len(t["name"]) >= 64:
+        if not t or len(t) >= 64:
             raise APIInvalidUsage("Missing name or name too long")
-        if Tag.query.filter_by(name=t["name"]).first():
-            raise APIInvalidUsage("Tag already exists: " + t["name"])
-        tags.append(Tag(name=t["name"]))
+        if Tag.query.filter_by(name=t).first():
+            raise APIInvalidUsage("Tag already exists: {t}".format(t=t))
+        tags.append(Tag(name=t))
     db.session.add_all(tags)
     db.session.commit()
     res=make_response(jsonify(dict(

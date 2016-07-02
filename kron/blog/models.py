@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import url_for
 
-from kron import db
+from kron import db, uniqid
 
 
 tags_posts = db.Table(
@@ -15,7 +15,9 @@ tags_posts = db.Table(
 
 class Post(db.Model):
     __tablename__ = "posts"
-    id = db.Column(db.Integer, primary_key=True)
+    __tableid__ = uniqid()
+    _id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(8), unique=True, index=True)
     title = db.Column(db.String(128))
     timestamp = db.Column(db.DateTime)
     body = db.Column(db.Text)
@@ -23,6 +25,12 @@ class Post(db.Model):
         "Tag", secondary=tags_posts,
         backref=db.backref("posts", lazy="joined")
     )
+
+    def __init__(self, title, body):
+        db.Model.__init__(self)
+        self.id = Post.__tableid__ + uniqid()
+        self.title = title
+        self.body = body
 
     def to_dict(self):
         rv = dict(
@@ -47,8 +55,15 @@ class Post(db.Model):
 
 class Tag(db.Model):
     __tablename__ = "tags"
-    id = db.Column(db.Integer, primary_key=True)
+    __tableid__ = uniqid()
+    _id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(8), unique=True, index=True)
     name = db.Column(db.String(64), unique=True, index=True)
+
+    def __init__(self, name):
+        db.Model.__init__(self)
+        self.id = Tag.__tableid__ + uniqid()
+        self.name = name
 
     def to_dict(self, posts=False):
         rv = dict(
