@@ -1,9 +1,9 @@
 from flask_script import Manager
 
-from kron import create_app, db, models, blog_models
+from kron import Kron, db, models, Tag, Post
 
 
-app = create_app()
+app = Kron(__name__)
 manager = Manager(app)
 
 
@@ -16,7 +16,10 @@ def test():
 
 @manager.shell
 def _make_shell_context():
-    return dict(app=app, db=db, models=models, blog_models=blog_models)
+    return dict(
+        app=app, db=db, models=models,
+        Tag=Tag, Post=Post
+    )
 
 
 if __name__ == "__main__":

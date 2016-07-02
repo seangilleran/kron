@@ -1,26 +1,22 @@
 from flask import Flask, make_response, jsonify
 
-from kron import db, uniqid
-import kron.exceptions
+from kron import db, uniqid, exceptions
 from kron.blog.blueprints import blog
 from kron.blog.api import blog_api
 
 
-def create_app():
-    """Create a new application instance."""
-    app = Flask(__name__)
-    app.config.update(
-        SECRET_KEY=uniqid() * 4,
-        SQLALCHEMY_DATABASE_URI="sqlite:///kron_data.sqlite",
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
-    )
-    db.init_app(app)
-    app.register_blueprint(blog)
-    app.register_blueprint(blog_api, url_prefix="/blog/api")
+class Kron(Flask):
+    def __init__(self, name):
+        Flask.__init__(self, name)
 
-    @app.errorhandler(kron.exceptions.APIInvalidUsage)
-    @app.errorhandler(kron.exceptions.APINotFound)
-    def handle_api_exception(e):
-        return make_response(jsonify(e.to_dict()), e.status_code)
+        self.config.from_pyfile("settings.cfg")
 
-    return app
+        db.init_app(self)
+
+        self.register_blueprint(blog)
+        self.register_blueprint(blog_api, url_prefix="/blog/api")
+
+        @self.errorhandler(exceptions.APIInvalidUsage)
+        @self.errorhandler(exceptions.APINotFound)
+        def handle_api_exception(e):
+            return make_response(jsonify(e.to_dict()), e.status_code)
