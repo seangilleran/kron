@@ -1,6 +1,7 @@
 from flask import Flask, make_response, jsonify
 
 from kron import db, uniqid, exceptions
+from kron.blueprints import api
 from kron.blog.blueprints import blog
 from kron.blog.api import blog_api
 
@@ -13,6 +14,7 @@ class Kron(Flask):
 
         db.init_app(self)
 
+        self.register_blueprint(api)
         self.register_blueprint(blog)
         self.register_blueprint(blog_api, url_prefix="/blog/api")
 

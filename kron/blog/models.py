@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 from flask import url_for
@@ -20,7 +19,7 @@ class Post(db.Model):
     id = db.Column(db.String(8), unique=True, index=True)
     title = db.Column(db.String(128))
     timestamp = db.Column(db.DateTime)
-    body = db.Column(db.Text)
+    body = db.Column(db.UnicodeText)
     tags = db.relationship(
         "Tag", secondary=tags_posts,
         backref=db.backref("posts", lazy="joined")
