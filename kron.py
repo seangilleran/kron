@@ -56,59 +56,6 @@ def fake_data():
     db.session.commit()
     print("Done!")
 
-    arc = Archive(name="Barkarama Karama Ding")
-    db.session.add(arc)
-    db.session.commit()
-
-    t1 = Topic(name="Eternis")
-    t1.citations = "Miller, 311"
-    t2 = Topic(name="Chillium")
-    t2.citations = "Quinn, 344"
-    t2.notes = "Fugiat ad minim do duis reprehenderit pariatur aute anim."
-    t3 = Topic(name="Neocent")
-    t3.citations = "Burgess, 295"
-    db.session.add_all([t1, t2, t3])
-    db.session.commit()
-
-    b1 = Box(number=16, archive=arc)
-    b1.notes = "Veniam proident ad officia veniam ea et pariatur irure."
-    b1.topics.extend([t1, t3])
-    b2 = Box(number=244, archive=arc)
-    b2.topics.append(t2)
-    db.session.add_all([b1, b2])
-    db.session.commit()
-
-    p1 = Person(name="Wells Reilly")
-    p1.citations = "Weaver, 213\r\nMiles, 117\r\nJoyner, 229"
-    p1.notes = ("Ex elit ipsum ipsum magna fugiat. Laborum non non labore " +
-               "incididunt. Sit tempor voluptate consequat ullamco esse.")
-    p1.topics.append(t2)
-    p2 = Person(name="Louisa Dudley")
-    p2.citations = "Monroe, 387"
-    p3 = Person(name="Carmela Buck")
-    p3.citations = "Randolph, 262\r\nSullivan, 463"
-    p3.topics.append(t2)
-    p4 = Person(name="Dunlap Fitzpatrick")
-    p4.citations = "Roberson, 456"
-    p4.notes = ("Exercitation nulla ipsum minim velit ipsum velit dolore " +
-               "aliqua. Ea et aliqua incididunt reprehenderit deserunt " +
-               "tempor nulla duis minim laborum id quis amet ipsum. Aute " +
-               "duis esse sint anim duis excepteur quis consectetur aliquip " +
-               "tempor consectetur eiusmod. Consectetur adipisicing duis ad " +
-               "est excepteur tempor non magna magna ut do ut elit.")
-    p5 = Person(name="Hayes Fletcher")
-    p5.citations = "Abbott, 396\r\nHolder, 86\r\nFaulkner, 139"
-    p5.topics.extend([t1, t2, t3])
-    db.session.add_all([p1, p2, p3, p4, p5])
-    db.session.commit()
-
-    d1 = Document(title="Predators And Crustaceans")
-    d1.box = b1
-    d1.authors.append(p1)
-    d1.people.extend([p4, p5])
-    d1.topics.append(t2)
-    db.session.add(d1)
-    db.session.commit()
 
 
 @manager.shell

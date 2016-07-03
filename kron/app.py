@@ -1,22 +1,39 @@
+from datetime import datetime
+
 from flask import Flask, make_response, jsonify
 
-from kron import db, uniqid, exceptions
+from kron import db, moment, uniqid, exceptions
 from kron.blueprints import api
 from kron.blog.blueprints import blog
-from kron.blog.api import blog_api
 
 
 class Kron(Flask):
     def __init__(self, name):
         Flask.__init__(self, name)
-
         self.config.from_pyfile("settings.cfg")
-
         db.init_app(self)
+        moment.init_app(self)
+
+        @self.context_processor
+        def inject_cdns():
+            return dict(
+                bootstrap_css=self.config["BOOTSTRAP_CSS"],
+                bootstrap_js=self.config["BOOTSTRAP_JS"],
+                jquery_3_js=self.config["JQUERY_3_JS"],
+                jquery_2_js=self.config["JQUERY_2_JS"],
+                jquery_1_js=self.config["JQUERY_1_JS"],
+                knockout_js=self.config["KNOCKOUT_JS"],
+                font_awesome_css=self.config["FONT_AWESOME_CSS"]
+            )
+
+        @self.context_processor
+        def inject_time():
+            return dict(
+                timestamp=datetime.utcnow()
+            )
 
         self.register_blueprint(api)
         self.register_blueprint(blog)
-        self.register_blueprint(blog_api, url_prefix="/blog/api")
 
         @self.errorhandler(exceptions.APIInvalidUsage)
         @self.errorhandler(exceptions.APINotFound)

@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans");
+@font-face {
+  font-family: "Classic Console";
+  src: local("Classic Console"), url("clacon.woff") format("woff");
+}
+
+body {
+  padding-top: 50px;
+  padding-bottom: 50px;
+  font-family: "Open Sans", sans-serif;
+}
+
+@keyframes site-title-anim {
+  0% {content: "\00a0 ";}
+  100% {content: "_";}
+}
+
+div#site-title h2 {
+  color: #121;
+  font-family: "Classic Console", sans-serif;
+  font-size: 35px;
+  font-weight: normal;
+  text-transform: lowercase;
+}
+
+div#site-title h2:after {
+  content: "_";
+  animation-name: site-title-anim;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+}
