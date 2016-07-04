@@ -3,7 +3,7 @@ from datetime import datetime
 
 from flask import Flask, make_response, jsonify
 
-from kron import db, moment, exceptions, ModelEventListeners
+from kron import db, moment, exceptions
 from kron.blueprints import api
 from kron.blog.blueprints import blog
 

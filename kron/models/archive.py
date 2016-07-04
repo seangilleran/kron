@@ -21,21 +21,29 @@ class Archive(db.Model):
 
     @staticmethod
     def from_dict(data):
-        if not is_ok(data.get("archive")):
+        data = data.get("archive")
+        if not is_ok(data):
             raise APIInvalidUsage("Missing data: archive")
-        if not is_ok(data["archive"].get("name")):
+        if not is_ok(data.get("name")):
             raise APIInvalidUsage("Missing data: archive.name")
+        if (Archive.query.filter_by(name=data["name"]).first() or
+           len(data["name"]) >= 128):
+            raise APIInvalidUsage("Invalid data: archive.name")
         return Archive(
-            name=data["archive"]["name"],
-            notes=data["archive"].get("notes")
+            name=data["name"], notes=data.get("notes")
         )
 
     def update_from_dict(self, data):
-        archive = data.get("archive")
-        if not archive:
+        data = data.get("archive")
+        if not data:
             raise APIInvalidUsage("Missing data: archive")
-        self.name = archive.get("name", self.name)
-        self.notes = archive.get("notes", self.notes)
+        if is_ok(data.get("name")):
+            if (Archive.query.filter_by(name=data["name"]).first() or
+               len(data["name"]) >= 128):
+                raise APIInvalidUsage("Invalid data: archive.name")
+            self.name = data["name"]
+        if is_ok(data.get("notes")):
+            self.notes = data["notes"]
 
     def to_dict(self):
         rv = dict(archive=dict(

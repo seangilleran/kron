@@ -38,6 +38,9 @@ class Person(db.Model):
             raise APIInvalidUsage("Missing data: person")
         if not is_ok(data.get("name")):
             raise APIInvalidUsage("Missing data: person.name")
+        if (Person.query.filter_by(name=data["name"]).first() or
+           len(data["name"]) >= 128):
+            raise APIInvalidUsage("Invalid data: person.name")
         return Person(
             name=data["name"],
             dates=data.get("dates"),
@@ -50,6 +53,9 @@ class Person(db.Model):
         if not is_ok(data):
             raise APIInvalidUsage("Missing data: person")
         if is_ok(data.get("name")):
+            if (Person.query.filter_by(name=data["name"]).first() or
+               len(data["name"]) >= 128):
+                raise APIInvalidUsage("Invalid data: person.name")
             self.name = data["name"]
         if is_ok(data.get("dates")):
             self.dates = data["dates"]

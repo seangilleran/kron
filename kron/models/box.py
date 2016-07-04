@@ -46,6 +46,8 @@ class Box(db.Model):
             raise APIInvalidUsage("Missing data: box")
         if not is_ok(data.get("number")):
             raise APIInvalidUsage("Missing data: box.number")
+        if Box.query.filter_by(number=data["number"]).first():
+            raise APIInvalidUsage("Invalid data: box.number")
         return Box(
             number=data["number"],
             dates=data.get("dates"),
@@ -56,7 +58,10 @@ class Box(db.Model):
         data = data.get("box")
         if not is_ok(data):
             raise APIInvalidUsage("Missing data: box")
-        self.number = data.get("number", self.number)
+        if is_ok(data.get("number")):
+            if Box.query.filter_by(number=data["number"]).first():
+                raise APIInvalidUsage("Invalid data: box.number")
+            self.number = data["number"]
         if is_ok(data.get("dates")):
             self.dates = data["dates"]
         if is_ok(data.get("notes")):

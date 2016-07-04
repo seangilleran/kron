@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import url_for
 
 from kron import db, is_ok, ModelEventListeners
+from kron.blueprints import markdown_to_html
 from kron.exceptions import APIInvalidUsage
 
 
@@ -35,9 +36,11 @@ class Document(db.Model):
     last_update = db.Column(db.DateTime)
     box_id = db.Column(db.Integer, db.ForeignKey("boxes.id"))
     authors = db.relationship(
-        "Person", secondary=documents_authors, backref="documents_by")
+        "Person", secondary=documents_authors,
+        backref=db.backref("documents_by", lazy="dynamic"))
     people = db.relationship(
-        "Person", secondary=documents_people, backref="documents_in")
+        "Person", secondary=documents_people,
+        backref=db.backref("documents_in", lazy="dynamic"))
     topics = db.relationship(
         "Topic", secondary=documents_topics, backref="documents")
 
@@ -55,6 +58,9 @@ class Document(db.Model):
             raise APIInvalidUsage("Missing data: document")
         if not is_ok(data.get("title")):
             raise APIInvalidUsage("Missing data: document.title")
+        if (Document.query.filter_by(title=data["title"]).first() or
+           len(data["title"]) >= 128):
+            raise APIInvalidUsage("Invalid data: document.title")
         return Document(
             title=data["title"],
             dates=data.get("dates"),
@@ -67,6 +73,9 @@ class Document(db.Model):
         if not is_ok(data):
             raise APIInvalidUsage("Missing data: document")
         if is_ok(data.get("title")):
+            if (Document.query.filter_by(title=data["title"]).first() or
+               len(data["title"]) >= 128):
+                raise APIInvalidUsage("Invalid data: document.title")
             self.title = data["title"]
         if is_ok(data.get("dates")):
             self.dates = data["dates"]

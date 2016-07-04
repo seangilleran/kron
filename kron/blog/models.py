@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from flask import url_for
+import bleach
+from markdown import markdown
 
 from kron import db, is_ok, ModelEventListeners
 from kron.exceptions import APIInvalidUsage
@@ -96,6 +98,7 @@ class Post(db.Model):
         rv = dict(post=dict(
             id=self.id, title=self.title,
             body=self.body,
+            html=self.html,
             timestamp=datetime.strftime(
                 self.timestamp, '%b %d %Y %I:%M%p'),
             tags=[dict(url=t.get_url()) for t in self.tags]
@@ -104,6 +107,14 @@ class Post(db.Model):
             if not is_ok(rv["post"][key]):
                 rv["post"].pop(key, None)
         return rv
+
+    def get_html(self):
+        allowed_tags = ["a", "abbr", "acronym", "b", "blockquote", "code",
+                        "em", "i", "li", "ol", "pre", "strong", "ul", "h1",
+                        "h2", "h3", "p"]
+        html = bleach.clean(markdown(self.body, output_format="html"),
+                            tags=allowed_tags, strip=True)
+        return bleach.linkify(html)
 
     def get_url(self, full=False):
         return url_for("blog.get_post", id=self.id, _external=full)
