@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kron</title>
+  <link href="{{ bootstrap_css }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+  <div class="panel-group">
+    <div class="panel panel-primary" data-bind="foreach: people">
+      <div class="panel-heading" data-bind="text: person.name"></div>
+      <div class="panel-body">
+        <dl>
+          <dt>Notes</dt>
+          <dd data-bind="text: person.notes"></dd>
+          <dt>Dates</dt>
+          <dd data-bind="text: person.dates"></dd>
+          <dt>Citations</dt>
+          <dd data-bind="text: person.citations"></dd>
+          <dt>Documents authored by</dt>
+          <!-- ko foreach: person.documents_by -->
+            <dd data-bind="text: url"></dd>
+          <!-- /ko -->
+          <dt>Documents discussed in</dt>
+          <!-- ko foreach: person.documents_in -->
+            <dd data-bind="text: url"></dd>
+          <!-- /ko -->
+          <dt>Related boxes</dt>
+          <!-- ko foreach: person.boxes -->
+            <dd data-bind="text: url"></dd>
+          <!-- /ko -->
+          <dt>Related topics</dt>
+          <!-- ko foreach: person.topics -->
+            <dd data-bind="text: url"></dd>
+          <!-- /ko -->
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ jquery_2_js }}"></script>
+<script src="{{ knockout_js }}"></script>
+<script src="{{ bootstrap_js }}"></script>
+{{ moment.include_moment() }}
+<script>
+  function viewModel(people) {
+    var self = this;
+    self.people = people;
+  }
+
+  $.getJSON("people/").done(function (data) {
+    ko.applyBindings(viewModel(data));
+  });
+</script>
+</body>
+</html>

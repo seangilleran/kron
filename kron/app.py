@@ -34,7 +34,7 @@ class Kron(Flask):
                 timestamp=datetime.utcnow()
             )
 
-        self.register_blueprint(api)
+        self.register_blueprint(api, url_prefix="/kron")
         self.register_blueprint(blog)
 
         @self.errorhandler(exceptions.APIInvalidUsage)

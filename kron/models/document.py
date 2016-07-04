@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import url_for
 
 from kron import db, is_ok, ModelEventListeners
-from kron.blueprints import markdown_to_html
 from kron.exceptions import APIInvalidUsage
 
 

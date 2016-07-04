@@ -1,7 +1,12 @@
-from flask import Blueprint, make_response, jsonify
+from flask import Blueprint, make_response, jsonify, render_template
 
 
-api = Blueprint("api", __name__)
+api = Blueprint("api", __name__, template_folder="api/templates")
+
+
+@api.route("/")
+def get_kron_view():
+    return render_template("kron.htm")
 
 
 def make_api_get_response(obj, code=200):
