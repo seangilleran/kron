@@ -9,53 +9,72 @@ manager = Manager(app)
 
 
 @manager.command
-def test():
-    import unittest
-    tests = unittest.TestLoader().discover("tests")
-    unittest.TextTestRunner(verbosity=2).run(tests)
+def data(file):
+    import json
+    from pprint import pprint
 
-
-@manager.command
-def fake_data():
     db.drop_all()
     db.create_all()
 
-    tags = [
-        Tag(name="Cool"), Tag(name="Rad"), Tag(name="Sick"), Tag(name="Dope")
-    ]
-    db.session.add_all(tags)
+    with open(file) as data_file:
+        data = json.load(data_file)
+
+    print("Loading tags...")
+    for i in data["tags"]:
+        t = Tag.from_dict(i)
+        db.session.add(t)
     db.session.commit()
 
-    p1 = Post(
-        title="Duis quis congue odio, efficitur fermentum libero.",
-        body="Ut ligula lacus, accumsan sed libero pulvinar, lobortis " +
-             "mollis diam. Sed justo neque, sagittis id mattis in, " +
-             "gravida eu turpis. Suspendisse potenti. Aliquam ut tempor " +
-             "augue. Ut ut urna vulputate, varius tellus id, laoreet " +
-             "dui. Cras tempus tincidunt ligula ac fringilla. Curabitur " +
-             "non orci ut justo euismod imperdiet sit amet eu turpis."
-    )
-    p1.tags.extend([tags[0], tags[1]])
-    p2 = Post(
-        title="Cras at massa id libero tincidunt posuere.",
-        body="Ut gravida vestibulum urna, id aliquet velit luctus nec. " +
-             "Aenean efficitur volutpat quam vel condimentum. Praesent " +
-             "ultrices non risus non elementum. Proin a placerat felis. " +
-             "Duis felis nulla, dapibus eget diam sed, euismod facilisis " +
-             "lorem. Maecenas ut lacinia sapien. Nunc magna leo, vehicula " +
-             "ut sagittis ac, mattis eu diam. Phasellus semper sollicitudin " +
-             "augue eu auctor. Nullam rutrum congue aliquam. Proin interdum " +
-             "ex non euismod accumsan. Cras dapibus egestas ipsum ac " +
-             "consequat. Nam vitae ante ac sem dapibus pellentesque nec at " +
-             "risus. Nam auctor massa ipsum, ut finibus arcu suscipit sed. " +
-             "Pellentesque sit amet augue faucibus, imperdiet tortor eu, " +
-             "hendrerit eros."
-    )
-    p2.tags.extend([tags[0], tags[2], tags[3]])
-    db.session.add_all([p1, p2])
+    print("Loading posts...")
+    for i in data["posts"]:
+        p = Post.from_dict(i)
+        p.tags.extend([Tag.query.filter_by(id=t["tag"]["id"]).first()
+                      for t in i["post"]["tags"]])
+        db.session.add(p)
     db.session.commit()
+
+    print("Loading archives...")
+    for i in data["archives"]:
+        a = Archive.from_dict(i)
+        db.session.add(a)
+    db.session.commit()
+
+    print("Loading topics...")
+    for i in data["topics"]:
+        t = Topic.from_dict(i)
+        db.session.add(t)
+    db.session.commit()
+
+    print("Loading people...")
+    for i in data["people"]:
+        p = Person.from_dict(i)
+        p.topics.extend([Topic.query.filter_by(id=t["topic"]["id"]).first()
+                        for t in i["person"]["topics"]])
+        db.session.add(p)
+    db.session.commit()
+
+    print("Loading boxes...")
+    for i in data["boxes"]:
+        b = Box.from_dict(i)
+        b.archive = Archive.query.filter_by(id=i["box"]["archive"]["id"]).first()
+        b.topics.extend([Topic.query.filter_by(id=t["topic"]["id"]).first()
+                        for t in i["box"]["topics"]])
+        db.session.add(b)
+    db.session.commit()
+
+    print("Loading documents...")
+    for i in data["documents"]:
+        d = Document.from_dict(i)
+        d.box = Box.query.filter_by(id=i["document"]["box"]["id"]).first()
+        d.authors.extend([Person.query.filter_by(id=p["person"]["id"]).first()
+                         for p in i["document"]["authors"]])
+        d.people.extend([Person.query.filter_by(id=p["person"]["id"]).first()
+                        for p in i["document"]["people"]])
+        b.topics.extend([Topic.query.filter_by(id=t["topic"]["id"]).first()
+                        for t in i["document"]["topics"]])
+    db.session.commit()
+
     print("Done!")
-
 
 
 @manager.shell

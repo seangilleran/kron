@@ -1,72 +1,62 @@
 from datetime import datetime
-from re import sub
 
-from flask import url_for, current_app
-from markdown import markdown
-import bleach
+from flask import url_for
 
-from kron import db, uniqid
+from kron import db, is_ok, ModelEventListeners
+from kron.exceptions import APIInvalidUsage
 
 
 class Archive(db.Model):
     __tablename__ = "archives"
-    __tableid__ = uniqid()
-    _id = db.Column(db.Integer, primary_key=True)
-    id = db.Column(db.String(8), unique=True, index=True)
-    last_update = db.Column(db.DateTime)
-    name = db.Column(db.String(128), unique=True, index=True)
-    full_name = db.Column(db.String(128))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), unique=True)
     notes = db.Column(db.UnicodeText)
-    notes_html = db.Column(db.UnicodeText)
-    boxes = db.relationship(
-        "Box", lazy="dynamic",
-        backref=db.backref("archive", lazy="joined"))
+    last_update = db.Column(db.DateTime)
+    boxes = db.relationship("Box", backref="archive")
 
-    def __init__(self, name):
+    def __init__(self, name, notes=None):
         db.Model.__init__(self)
-        self.id = Archive.__tableid__ + uniqid()
-        self.full_name = name
+        self.name = name
+        self.notes = notes
 
     @staticmethod
-    def on_update(target, value, oldvalue, initiator):
-        target.last_update = datetime.now()
+    def from_dict(data):
+        if not is_ok(data.get("archive")):
+            raise APIInvalidUsage("Missing data: archive")
+        if not is_ok(data["archive"].get("name")):
+            raise APIInvalidUsage("Missing data: archive.name")
+        return Archive(
+            name=data["archive"]["name"],
+            notes=data["archive"].get("notes")
+        )
 
-    @staticmethod
-    def on_update_name(target, value, oldvalue, initiator):
-        target.name = sub("[^A-Za-z]", "_", value).lower()
-
-    @staticmethod
-    def on_update_notes(target, value, oldvalue, initiator):
-        allowed_tags = current_app.config.get("ALLOWED_HTML_TAGS")
-        html = markdown(value, output_format="html")
-        target.notes_html = bleach.linkify(
-            bleach.clean(html, tags=allowed_tags, strip=True))
+    def update_from_dict(self, data):
+        archive = data.get("archive")
+        if not archive:
+            raise APIInvalidUsage("Missing data: archive")
+        self.name = archive.get("name", self.name)
+        self.notes = archive.get("notes", self.notes)
 
     def to_dict(self):
-        rv = dict(Archive=dict(
-            id=self.id,
-            last_update=self.last_update,
-            name=self.full_name,
+        rv = dict(archive=dict(
+            id=self.id, name=self.name,
+            notes=self.notes,
+            last_update=datetime.strftime(
+                self.last_update, '%b %d %Y %I:%M%p'),
+            boxes=[dict(url=b.get_url()) for b in self.boxes],
             url=self.get_url()
         ))
-        if self.notes:
-            rv["notes"] = self.notes
-        if self.boxes:
-            rv["boxes"] = [dict(
-                number=b.number,
-                url=b.get_url()
-            ) for b in self.boxes]
+        for key in list(rv["archive"]):
+            if not is_ok(rv["archive"][key]):
+                rv["archive"].pop(key, None)
         return rv
 
     def get_url(self, full=False):
-        return url_for("api.get_archive", name=self.name, _external=full)
+        return url_for("api.get_archive", id=self.id, _external=full)
 
     def __repr__(self):
         return "<Archive {id}>".format(id=self.id)
 
 
-db.event.listen(Archive.full_name, "set", Archive.on_update)
-db.event.listen(Archive.full_name, "set", Archive.on_update_name)
-db.event.listen(Archive.notes, "set", Archive.on_update)
-db.event.listen(Archive.notes, "set", Archive.on_update_notes)
-db.event.listen(Archive.boxes, "set", Archive.on_update)
+db.event.listen(Archive.name, "set", ModelEventListeners.on_update)
+db.event.listen(Archive.notes, "set", ModelEventListeners.on_update)

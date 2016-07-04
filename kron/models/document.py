@@ -2,7 +2,8 @@ from datetime import datetime
 
 from flask import url_for
 
-from kron import db, uniqid
+from kron import db, is_ok, ModelEventListeners
+from kron.exceptions import APIInvalidUsage
 
 
 documents_authors = db.Table(
@@ -26,61 +27,82 @@ documents_topics = db.Table(
 
 class Document(db.Model):
     __tablename__ = "documents"
-    __tableid__ = uniqid()
-    _id = db.Column(db.Integer, primary_key=True)
-    id = db.Column(db.String(8), unique=True, index=True)
-    last_update = db.Column(db.DateTime)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), unique=True)
-    notes = db.Column(db.Text)
-    authors = db.relationship(
-        "Person", secondary=documents_authors, lazy="joined",
-        backref=db.backref("documents_by", lazy="joined"))
-    people = db.relationship(
-        "Person", secondary=documents_people, lazy="joined",
-        backref=db.backref("documents_in", lazy="joined"))
-    topics = db.relationship(
-        "Topic", secondary=documents_topics, lazy="joined",
-        backref=db.backref("documents", lazy="joined"))
+    dates = db.Column(db.UnicodeText)
+    citations = db.Column(db.UnicodeText)
+    notes = db.Column(db.UnicodeText)
+    last_update = db.Column(db.DateTime)
     box_id = db.Column(db.Integer, db.ForeignKey("boxes.id"))
+    authors = db.relationship(
+        "Person", secondary=documents_authors, backref="documents_by")
+    people = db.relationship(
+        "Person", secondary=documents_people, backref="documents_in")
+    topics = db.relationship(
+        "Topic", secondary=documents_topics, backref="documents")
 
-    def __init__(self, title):
+    def __init__(self, title, dates=None, citations=None, notes=None):
         db.Model.__init__(self)
-        self.id = Document.__tableid__ + uniqid()
-        self.last_update = datetime.now()
         self.title = title
-    
-    def to_dict(self):
-        rv = dict(
-            id=self.id,
-            last_update=self.last_update,
-            title=self.title
+        self.dates = dates
+        self.citations = citations
+        self.notes = notes
+
+    @staticmethod
+    def from_dict(data):
+        data = data.get("document")
+        if not is_ok(data):
+            raise APIInvalidUsage("Missing data: document")
+        if not is_ok(data.get("title")):
+            raise APIInvalidUsage("Missing data: document.title")
+        return Document(
+            title=data["title"],
+            dates=data.get("dates"),
+            citations=data.get("citations"),
+            notes=data.get("notes")
         )
-        if self.notes:
-            rv["notes"] = self.notes
-        if self.authors:
-            rv["authors"] = [dict(
-                name=a.name,
-                url=a.get_url()
-            ) for a in self.authors]
-        if self.people:
-            rv["people"] = [dict(
-                name=p.name,
-                url=p.get_url()
-            ) for p in self.people]
-        if self.topics:
-            rv["topics"] = [dict(
-                name=t.name,
-                url=t.get_url()
-            ) for t in self.topics]
-        if self.box:
-            rv["box"] = dict(
-                number=self.box.number,
-                url=self.box.get_url()
-            )
+
+    def update_from_dict(self, data):
+        data = data.get("document")
+        if not is_ok(data):
+            raise APIInvalidUsage("Missing data: document")
+        if is_ok(data.get("title")):
+            self.title = data["title"]
+        if is_ok(data.get("dates")):
+            self.dates = data["dates"]
+        if is_ok(data.get("citations")):
+            self.dates = data["citations"]
+        if is_ok(data.get("notes")):
+            self.notes = data["notes"]
+
+    def to_dict(self):
+        rv = dict(document=dict(
+            id=self.id, title=self.title,
+            dates=self.dates,
+            citations=self.citations,
+            notes=self.notes,
+            last_update=datetime.strftime(
+                self.last_update, '%b %d %Y %I:%M%p'),
+            box=dict(url=self.box.get_url()),
+            authors=[dict(url=a.get_url()) for a in self.authors],
+            people=[dict(url=p.get_url()) for p in self.people],
+            topics=[dict(url=t.get_url()) for t in self.topics],
+            url=self.get_url()
+        ))
+        for key in list(rv["document"]):
+            if not is_ok(rv["document"][key]):
+                rv["document"].pop(key, None)
         return rv
-    
+
     def get_url(self, full=False):
         return url_for("api.get_document", id=self.id, _external=full)
 
     def __repr__(self):
-        return "<Document \"{title}\">".format(title=self.title)
+        return "<Document {id}>".format(id=self.id)
+
+
+db.event.listen(Document.title, "set", ModelEventListeners.on_update)
+db.event.listen(Document.box_id, "set", ModelEventListeners.on_update)
+db.event.listen(Document.dates, "set", ModelEventListeners.on_update)
+db.event.listen(Document.citations, "set", ModelEventListeners.on_update)
+db.event.listen(Document.notes, "set", ModelEventListeners.on_update)

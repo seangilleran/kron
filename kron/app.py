@@ -1,8 +1,9 @@
+import os
 from datetime import datetime
 
 from flask import Flask, make_response, jsonify
 
-from kron import db, moment, uniqid, exceptions
+from kron import db, moment, exceptions, ModelEventListeners
 from kron.blueprints import api
 from kron.blog.blueprints import blog
 
@@ -11,6 +12,7 @@ class Kron(Flask):
     def __init__(self, name):
         Flask.__init__(self, name)
         self.config.from_pyfile("settings.cfg")
+        self.root_path = os.path.join(self.root_path, "kron")
         db.init_app(self)
         moment.init_app(self)
 

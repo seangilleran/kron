@@ -1,34 +1,19 @@
-from datetime import datetime
-
-from flask import jsonify, make_response, request
-
-from kron import db
-from kron.blueprints import api
+from kron.blueprints import api, make_api_get_response, make_api_get_list_response
 from kron.models import Person
-from kron.exceptions import APIInvalidUsage, APINotFound
+from kron.exceptions import APINotFound
 
 
 @api.route("/people/")
 def get_people():
-    """Get all people"""
-    people = Person.query.all()
-    if not people:
+    data = Person.query.all()
+    if not data:
         raise APINotFound()
-    res = jsonify(dict(
-        people=[p.to_dict() for p in people]
-    ))
-    res.headers["Location"] = people[0].get_url()
-    return res
+    return make_api_get_list_response(data)
 
 
-@api.route("/people/<name>")
-def get_person(name):
-    """Get a specific Person by Person.name"""
-    person = Person.query.filter_by(name=name).first()
-    if not person:
+@api.route("/people/<int:id>")
+def get_person(id):
+    data = Person.query.filter_by(id=id).first()
+    if not data:
         raise APINotFound()
-    res = jsonify(dict(
-        people=[person.to_dict()]
-    ))
-    res.headers["Location"] = person.get_url()
-    return res
+    return make_api_get_response(data)

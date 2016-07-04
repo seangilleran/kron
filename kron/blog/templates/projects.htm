@@ -1,56 +1,42 @@
-{% extends "_layout.htm" %}
-{% block page_stuff %}
-<div class="container">
-  <div class="col-md-8">
-  <div class="container-fluid">
-    <div class="page-header"><h3>Kron</h3></div>
-  </div>
-  <div class="container-fluid">
-    <div class="col-md-11">
-      <p>
-        Blah blah blah
-      </p>
-      <p>
-        <span class="fa fa-github"></span>
-        <a href="#">Git Repo</a>
-        &nbsp;&nbsp;
-        <span class="fa fa-lock"></span>
-        <a href="#">Sign In</a>
-      </p>
+    {% extends "_layout.htm" %}
+    {% block page_stuff %}
+    <div class="container-fluid">
+      <div class="page-header"><h3>
+        Research: Carl Sagan & Ann Druyan Archive
+      </h3></div>
     </div>
-  </div>
-  <div class="col-md-8">
-  <div class="container-fluid">
-    <div class="page-header"><h3>Kron</h3></div>
-  </div>
-  <div class="container-fluid">
-    <div class="col-md-11">
-      <p>
-        Blah blah blah
-      </p>
-      <p>
-        <span class="fa fa-github"></span>
-        <a href="#">Git Repo</a>
-        &nbsp;&nbsp;
-        <span class="fa fa-lock"></span>
-        <a href="#">Sign In</a>
-      </p>
+    <div class="container-fluid">
+      <div class="col-md-11">
+        <p>From the department announcement:</p>
+        <p><q>Sean Gilleran, a history master’s degree candidate, was 
+        awarded the Edward and Margery Bennett History Graduate Fellowship. He 
+        will use the funding to travel this summer to Washington, D.C., where 
+        he will explore the Seth MacFarlane Collection of the Carl Sagan and 
+        Ann Druyan Archive at the Library of Congress.</q></p>
+        <p>
+          <span class="fa fa-file"></span>&nbsp;
+          <a href="https://history.wsu.edu/history-newsletter/may-2016-homepage/scholarships-and-awards/graduate-student-sean-gilleran-awarded-bennett-history-graduate-fellowship/" target="blank">
+            More info
+          </a>
+        </p>
+      </div>
     </div>
-  </div>
-  <div class="col-md-8">
-  <div class="container-fluid">
-    <div class="page-header"><h3>Captain</h3></div>
-  </div>
-  <div class="container-fluid">
-    <div class="col-md-11">
-      <p>
-        Blah blah blah
-      </p>
-      <p>
-        <span class="fa fa-github"></span>
-        <a href="#">Git Repo</a>
-      </p>
+    <div class="container-fluid">
+      <div class="page-header"><h3>Web Project: Kron</h3></div>
     </div>
-  </div>
-</div>
-{% endblock %}
+    <div class="container-fluid">
+      <div class="col-md-11">
+        <p>Kron is a database project I built with Flask and SQLite in order
+        to help me keep better track of my research. History is complex, 
+        and the connections can be subtle. Kron is designed to be flexible 
+        and to remember people, events, documents, and ideas the same way
+        that I do&mdash;but much less forgetfullly!</p>
+        <p>The code is open-source and available on Github unde the MIT
+        License.</p>
+        <p>
+          <span class="fa fa-github"></span>&nbsp;
+          <a href="https://github.com/seangilleran/kron" target="blank">Source</a>
+        </p>
+      </div>
+    </div>
+    {% endblock %}

@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 @font-face {
-  font-family: "Classic Console";
-  src: local("Classic Console"), url("clacon.woff") format("woff");
+  font-family: "Fixedsys Excelsior 3.01";
+  src: local("Fixedsys Excelsior 3.01"), url("fsex3.woff") format("woff");
 }
 
 body {
@@ -17,7 +17,7 @@ body {
 
 div#site-title h2 {
   color: #121;
-  font-family: "Classic Console", sans-serif;
+  font-family: "Fixedsys Excelsior 3.01", sans-serif;
   font-size: 35px;
   font-weight: normal;
   text-transform: lowercase;
@@ -28,4 +28,9 @@ div#site-title h2:after {
   animation-name: site-title-anim;
   animation-duration: 2s;
   animation-iteration-count: infinite;
+}
+
+p#page-footer {
+  font-family: "Fixedsys Excelsior 3.01", sans-serif;
+  font-size: 16px;
 }

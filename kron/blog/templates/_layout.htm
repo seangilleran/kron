@@ -10,52 +10,53 @@
 </head>
 <body>
 
-{% block page_stuff %}{% endblock %}
-  
-<div class="col-md-4">
-  <div class="container-fluid text-center">
-    <img src="{{ url_for('static', filename='img/sean.jpg') }}"
-         class="img-circle" width="128px">
+<div class="container">
+  <div class="col-md-8">
+    {% block page_stuff %}{% endblock %}
   </div>
-  <div id="site-title" class="container-fluid text-center">
-    <h2 class="code">Sean Gilleran<span id="site-title-us"></span></h2>
-  </div>
-  <br>
-  <div class="container-fluid">
-    <ul class="nav nav-pills nav-stacked">
-      <li{% if pg == "blog" %} class="active"{% endif %}>
-        <a href="{{ url_for('blog.get_posts') }}">
-          <span class="glyphicon glyphicon-file"></span>&nbsp;
-          Blog
-        </a>
-      </li><li{% if pg == "cv" %} class="active"{% endif %}>
-        <a href="{{ url_for('blog.get_cv') }}">
-          <span class="glyphicon glyphicon-education"></span>&nbsp;
-          CV
-        </a>
-      </li><li{% if pg == "projects" %} class="active"{% endif %}>
-        <a href="{{ url_for('blog.get_projects') }}">
-          <span class="glyphicon glyphicon-wrench"></span>&nbsp;
-          Projects
-        </a>
-      </li>
-      <li class="divider" role="separator">&nbsp;</li>
-      <li>
-        <a href="mailto:sean.gilleran@wsu.edu">
-          <span class="glyphicon glyphicon-send"></span>&nbsp;
-          E-mail
-        </a>
-      </li><li>
-        <a target="_blank" href="http://instagram.com/sgilleran">
-          <span class="fa fa-instagram"></span>&nbsp;
-          Instagram
-        </a>
-      </li>
-    </ul>
+  <div class="col-md-4">
+    <div class="container-fluid text-center">
+      <img src="{{ url_for('static', filename='img/sean.jpg') }}"
+           class="img-circle" width="128px">
+    </div>
+    <div id="site-title" class="container-fluid text-center">
+      <h2 class="code">Sean Gilleran<span id="site-title-us"></span></h2>
+    </div>
+    <br>
+    <div class="container-fluid">
+      <ul class="nav nav-pills nav-stacked">
+        <li{% if pg == "blog" %} class="active"{% endif %}>
+          <a href="{{ url_for('blog.get_posts') }}">
+            <span class="glyphicon glyphicon-file"></span>&nbsp;
+            Blog
+          </a>
+        </li><li{% if pg == "cv" %} class="active"{% endif %}>
+          <a href="{{ url_for('blog.get_cv') }}">
+            <span class="glyphicon glyphicon-education"></span>&nbsp;
+            CV
+          </a>
+        </li><li{% if pg == "projects" %} class="active"{% endif %}>
+          <a href="{{ url_for('blog.get_projects') }}">
+            <span class="glyphicon glyphicon-wrench"></span>&nbsp;
+            Projects
+          </a>
+        </li>
+        <li class="divider" role="separator">&nbsp;</li>
+        <li>
+          <a href="mailto:sean.gilleran@wsu.edu">
+            <span class="glyphicon glyphicon-send"></span>&nbsp;
+            E-mail
+          </a>
+        </li><li>
+          <a target="_blank" href="http://instagram.com/sgilleran">
+            <span class="fa fa-instagram"></span>&nbsp;
+            Instagram
+          </a>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
-</div>
-
 <div class="container">
   <div class="col-md-8">
     <div class="container-fluid">
@@ -63,7 +64,7 @@
       <p id="page-footer" class="text-muted">
         Accessed
         <time>{{ moment(timestamp).format("MMMM Do YYYY, h:mm a") }}</time>.
-        <br>It is now safe to shut down your computer.
+        <br>It's now safe to turn off your computer.
       </p>
     </div>
   </div>

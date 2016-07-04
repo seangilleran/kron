@@ -1,34 +1,19 @@
-from datetime import datetime
-
-from flask import jsonify, make_response, request
-
-from kron import db
-from kron.blueprints import api
+from kron.blueprints import api, make_api_get_response, make_api_get_list_response
 from kron.models import Document
-from kron.exceptions import APIInvalidUsage, APINotFound
+from kron.exceptions import APINotFound
 
 
 @api.route("/documents/")
 def get_documents():
-    """Get all Documents"""
-    documents = Document.query.all()
-    if not documents:
+    data = Document.query.all()
+    if not data:
         raise APINotFound()
-    res = jsonify(dict(
-        documents=[d.to_dict() for d in documents]
-    ))
-    res.headers["Location"] = documents[0].get_url()
-    return res
+    return make_api_get_list_response(data)
 
 
-@api.route("/documents/<id>")
+@api.route("/documents/<int:id>")
 def get_document(id):
-    """Get a specific Document by Document.id"""
-    document = Document.query.filter_by(id=id).first()
-    if not document:
+    data = Document.query.filter_by(id=id).first()
+    if not data:
         raise APINotFound()
-    res = jsonify(dict(
-        documents=[document.to_dict()]
-    ))
-    res.headers["Location"] = document.get_url()
-    return res
+    return make_api_get_response(data)

@@ -40,28 +40,24 @@ def get_research():
     )
 
 
-@blog.route("/posts/<title>")
-def get_post(title):
-    post = Post.query.filter_by(title=title).first()
-    if not post:
-        flask.abort(404)
+@blog.route("/posts/<int:id>")
+def get_post(id):
+    post = Post.query.get_or_404(id)
     posts = [post]
     return flask.render_template(
-        "post_by_name.htm",
+        "posts.htm",
         pg="blog", posts=posts
     )
 
 
-@blog.route("/tags/<name>")
-def get_tag(name):
-    tag = Tag.query.filter_by(name=name).first()
-    if not tag:
-        flask.abort(404)
+@blog.route("/tags/<int:id>")
+def get_tag(id):
+    tag = Tag.query.get_or_404(id)
     posts = []
     for p in Post.query.all():
         if tag in p.tags:
             posts.append(p)
     return flask.render_template(
-        "posts_by_tag.htm",
+        "posts.htm",
         pg="blog", posts=posts, tag=tag
     )
