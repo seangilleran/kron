@@ -9,7 +9,7 @@ manager = Manager(app)
 
 
 @manager.command
-def data(file):
+def import(file):
     restore_from_file(file)
 
 
