@@ -51,7 +51,10 @@ class Archive(db.Model):
             notes=self.notes,
             last_update=datetime.strftime(
                 self.last_update, '%b %d %Y %I:%M%p'),
-            boxes=[dict(url=b.get_url()) for b in self.boxes],
+            boxes=[dict(
+                number=b.number,
+                url=b.get_url(),
+            ) for b in self.boxes],
             url=self.get_url()
         ))
         for key in list(rv["archive"]):

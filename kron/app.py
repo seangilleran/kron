@@ -10,7 +10,7 @@ from kron.blog.blueprints import blog
 
 class Kron(Flask):
     def __init__(self, name):
-        Flask.__init__(self, name)
+        Flask.__init__(self, name, static_url_path="")
         self.config.from_pyfile("settings.cfg")
         self.root_path = os.path.join(self.root_path, "kron")
         db.init_app(self)
@@ -24,7 +24,7 @@ class Kron(Flask):
                 jquery_3_js=self.config["JQUERY_3_JS"],
                 jquery_2_js=self.config["JQUERY_2_JS"],
                 jquery_1_js=self.config["JQUERY_1_JS"],
-                knockout_js=self.config["KNOCKOUT_JS"],
+                angular_js=self.config["ANGULAR_JS"],
                 font_awesome_css=self.config["FONT_AWESOME_CSS"]
             )
 
@@ -34,7 +34,7 @@ class Kron(Flask):
                 timestamp=datetime.utcnow()
             )
 
-        self.register_blueprint(api, url_prefix="/kron")
+        self.register_blueprint(api, url_prefix="/kron/api")
         self.register_blueprint(blog)
 
         @self.errorhandler(exceptions.APIInvalidUsage)
