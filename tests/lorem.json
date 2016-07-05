@@ -65,7 +65,7 @@
     "{{repeat(40)}}",
     {
       "box":{
-        "number":"{{integer(1, 100)}}",
+        "number":"{{integer(1, 10000)}}",
         "archive":{
           "id":1
         },
