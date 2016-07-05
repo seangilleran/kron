@@ -10,12 +10,6 @@ db = SQLAlchemy()
 moment = Moment()
 
 
-class ModelEventListeners():
-    @staticmethod
-    def on_update(target, value, oldvalue, initiator):
-        target.last_update = datetime.utcnow()
-
-
 def is_ok(data):
     if not data or data == "" or data == [] or data == {} or data == [{}]:
         return False
@@ -88,3 +82,9 @@ def restore_from_file(path, drop=True):
     db.session.commit()
 
     print("Done!")
+
+
+class ModelEventListeners():
+    @staticmethod
+    def on_update(target, value, oldvalue, initiator):
+        target.last_update = datetime.utcnow()

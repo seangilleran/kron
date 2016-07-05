@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import url_for
 
 from kron import db, is_ok, ModelEventListeners
-from kron.exceptions import APIInvalidUsage
 
 
 boxes_people = db.Table(
@@ -43,49 +42,19 @@ class Box(db.Model):
     def from_dict(data):
         data = data.get("box")
         if not is_ok(data):
-            raise APIInvalidUsage("Missing data: box")
+            raise TypeError("Missing data: box")
         if not is_ok(data.get("number")):
-            raise APIInvalidUsage("Missing data: box.number")
+            raise TypeError("Missing data: box.number")
         if Box.query.filter_by(number=data["number"]).first():
-            raise APIInvalidUsage("Invalid data: box.number")
+            raise TypeError("Invalid data: box.number")
         return Box(
             number=data["number"],
             dates=data.get("dates"),
             notes=data.get("notes")
         )
 
-    def update_from_dict(self, data):
-        data = data.get("box")
-        if not is_ok(data):
-            raise APIInvalidUsage("Missing data: box")
-        if is_ok(data.get("number")):
-            if Box.query.filter_by(number=data["number"]).first():
-                raise APIInvalidUsage("Invalid data: box.number")
-            self.number = data["number"]
-        if is_ok(data.get("dates")):
-            self.dates = data["dates"]
-        if is_ok(data.get("notes")):
-            self.notes = data["notes"]
-
-    def to_dict(self):
-        rv = dict(box=dict(
-            id=self.id, number=self.number,
-            dates=self.dates,
-            notes=self.notes,
-            last_update=datetime.strftime(
-                self.last_update, '%b %d %Y %I:%M%p'),
-            documents=[dict(url=d.get_url()) for d in self.documents],
-            people=[dict(url=d.get_url()) for p in self.people],
-            topics=[dict(url=t.get_url()) for t in self.topics],
-            url=self.get_url()
-        ))
-        for key in list(rv["box"]):
-            if not is_ok(rv["box"][key]):
-                rv["box"].pop(key, None)
-        return rv
-
     def get_url(self, full=False):
-        return url_for("api.get_box", id=self.id, _external=full)
+        return url_for("kron.get_box", id=self.id, _external=full)
 
     def __repr__(self):
         return "<Box {id}>".format(id=self.id)

@@ -1,1 +1,0 @@
-var kron = angular.module('kron', []);

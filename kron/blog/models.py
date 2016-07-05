@@ -5,7 +5,6 @@ import bleach
 from markdown import markdown
 
 from kron import db, is_ok, ModelEventListeners
-from kron.exceptions import APIInvalidUsage
 
 
 tags_posts = db.Table(
@@ -28,15 +27,15 @@ class Tag(db.Model):
     def from_dict(data):
         data = data.get("tag")
         if not is_ok(data):
-            raise APIInvalidUsage("Missing data: tag")
+            raise TypeError("Missing data: tag")
         if not is_ok(data.get("name")):
-            raise APIInvalidUsage("Missing data: tag.name")
+            raise TypeError("Missing data: tag.name")
         return Tag(name=data["name"])
 
     def update_from_dict(self, data):
         data = data.get("tag")
         if not is_ok(data):
-            raise APIInvalidUsage("Missing data: tag")
+            raise TypeError("Missing data: tag")
         if is_ok(data.get("name")):
             self.name == data["name"]
 
@@ -76,11 +75,11 @@ class Post(db.Model):
     def from_dict(data):
         data = data["post"]
         if not is_ok(data):
-            raise APIInvalidUsage("Missing data: post")
+            raise TypeError("Missing data: post")
         if not is_ok(data.get("title")):
-            raise APIInvalidUsage("Missing data: post.title")
+            raise TypeError("Missing data: post.title")
         if not is_ok(data.get("body")):
-            raise APIInvalidUsage("Missing data: post.body")
+            raise TypeError("Missing data: post.body")
         return Post(
             title=data["title"], body=data["body"]
         )
@@ -88,7 +87,7 @@ class Post(db.Model):
     def update_from_dict(self, data):
         data = data["post"]
         if not is_ok(data):
-            raise APIInvalidUsage("Missing data: post")
+            raise TypeError("Missing data: post")
         if is_ok(data.get("title")):
             self.title = data["title"]
         if is_ok(data.get("body")):

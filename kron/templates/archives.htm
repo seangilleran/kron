@@ -5,21 +5,33 @@
   <h3 class="page-header">
     <span id="archiveName">{{ archive.name }}</span>
     <span class="pull-right">
-      <button id="editArchive" class="btn btn-default btn-xs"
-              onClick="editArchive({{ archive.id }})">
+      {% if edit == archive.id %}
+      <a class="btn btn-success btn-xs"
+         href="#">
+        Ok
+      </a>&nbsp;
+      <a class="btn btn-danger btn-xs"
+         href="{{ archive.get_url() }}">
+        Cancel
+      </a>
+      {% elif not list %}
+      <a id="editArchive" class="btn btn-warning btn-xs"
+         href="{{ archive.get_url(param='edit') }}">
         Edit
-      </button>
+      </a>
+      {% else %}
+      <a id="editArchive" class="btn btn-primary btn-xs"
+         href="{{ archive.get_url() }}">
+        ...
+      </a>
+      {% endif %}
     </span>
   </h3>
+  {% if not list %}
   <div class="panel-body">
     <div class="panel panel-default">
       <div class="panel-heading">
         <strong>Notes</strong>
-        <span class="pull-right">
-          <a href="#" class="btn btn-default btn-xs">
-            Edit
-          </a>
-        </span>
       </div>
       <div class="panel-body">
         <p>{{ archive.notes }}</p>
@@ -28,14 +40,6 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <strong>Boxes</strong>
-        <span class="pull-right">
-          <a href="#" class="btn btn-default btn-xs">
-            Add
-          </a>
-          <a href="#" class="btn btn-default btn-xs">
-            Remove
-          </a>
-        </span>
       </div>
       <div class="panel-body">
         <ul class="list-inline" style="margin-top:5px;margin-bottom:5px;">
@@ -50,13 +54,7 @@
       Last updated: {{ moment(archive.last_update).format("LL") }}
     </p>
   </div>
+  {% endif %}
 </div>
 {% endfor %}
-{% endblock %}
-{% block script %}
-<script>
-function editArchive(id) {
-    
-}
-</script>
 {% endblock %}

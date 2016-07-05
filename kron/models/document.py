@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import url_for
 
 from kron import db, is_ok, ModelEventListeners
-from kron.exceptions import APIInvalidUsage
 
 
 documents_authors = db.Table(
@@ -54,12 +53,12 @@ class Document(db.Model):
     def from_dict(data):
         data = data.get("document")
         if not is_ok(data):
-            raise APIInvalidUsage("Missing data: document")
+            raise TypeError("Missing data: document")
         if not is_ok(data.get("title")):
-            raise APIInvalidUsage("Missing data: document.title")
+            raise TypeError("Missing data: document.title")
         if (Document.query.filter_by(title=data["title"]).first() or
            len(data["title"]) >= 128):
-            raise APIInvalidUsage("Invalid data: document.title")
+            raise TypeError("Invalid data: document.title")
         return Document(
             title=data["title"],
             dates=data.get("dates"),
@@ -67,43 +66,8 @@ class Document(db.Model):
             notes=data.get("notes")
         )
 
-    def update_from_dict(self, data):
-        data = data.get("document")
-        if not is_ok(data):
-            raise APIInvalidUsage("Missing data: document")
-        if is_ok(data.get("title")):
-            if (Document.query.filter_by(title=data["title"]).first() or
-               len(data["title"]) >= 128):
-                raise APIInvalidUsage("Invalid data: document.title")
-            self.title = data["title"]
-        if is_ok(data.get("dates")):
-            self.dates = data["dates"]
-        if is_ok(data.get("citations")):
-            self.dates = data["citations"]
-        if is_ok(data.get("notes")):
-            self.notes = data["notes"]
-
-    def to_dict(self):
-        rv = dict(document=dict(
-            id=self.id, title=self.title,
-            dates=self.dates,
-            citations=self.citations,
-            notes=self.notes,
-            last_update=datetime.strftime(
-                self.last_update, '%b %d %Y %I:%M%p'),
-            box=dict(url=self.box.get_url()),
-            authors=[dict(url=a.get_url()) for a in self.authors],
-            people=[dict(url=p.get_url()) for p in self.people],
-            topics=[dict(url=t.get_url()) for t in self.topics],
-            url=self.get_url()
-        ))
-        for key in list(rv["document"]):
-            if not is_ok(rv["document"][key]):
-                rv["document"].pop(key, None)
-        return rv
-
     def get_url(self, full=False):
-        return url_for("api.get_document", id=self.id, _external=full)
+        return url_for("kron.get_document", id=self.id, _external=full)
 
     def __repr__(self):
         return "<Document {id}>".format(id=self.id)
