@@ -1,11 +1,12 @@
-import os
 from datetime import datetime
+import os
 
 from flask import Flask, make_response, jsonify
 
-from kron import db, moment, exceptions
-from kron.blueprints import api
-from kron.blog.blueprints import blog
+from kron.db import db, moment
+from kron.exceptions import APIInvalidUsage, APINotFound
+import kron.blueprints as bp
+import kron.blog.blueprints as blog_bp
 
 
 class Kron(Flask):
@@ -34,10 +35,11 @@ class Kron(Flask):
                 timestamp=datetime.utcnow()
             )
 
-        self.register_blueprint(api, url_prefix="/kron/api")
-        self.register_blueprint(blog)
+        self.register_blueprint(bp.kron, url_prefix="/kron")
+        self.register_blueprint(bp.api, url_prefix="/kron/api")
+        self.register_blueprint(blog_bp.blog)
 
-        @self.errorhandler(exceptions.APIInvalidUsage)
-        @self.errorhandler(exceptions.APINotFound)
+        @self.errorhandler(APIInvalidUsage)
+        @self.errorhandler(APINotFound)
         def handle_api_exception(e):
             return make_response(jsonify(e.to_dict()), e.status_code)

@@ -1,0 +1,62 @@
+{% extends "_layout.htm" %}
+{% block content %}
+{% for archive in archives %}
+<div id="archive{{ archive.id }}">
+  <h3 class="page-header">
+    <span id="archiveName">{{ archive.name }}</span>
+    <span class="pull-right">
+      <button id="editArchive" class="btn btn-default btn-xs"
+              onClick="editArchive({{ archive.id }})">
+        Edit
+      </button>
+    </span>
+  </h3>
+  <div class="panel-body">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Notes</strong>
+        <span class="pull-right">
+          <a href="#" class="btn btn-default btn-xs">
+            Edit
+          </a>
+        </span>
+      </div>
+      <div class="panel-body">
+        <p>{{ archive.notes }}</p>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Boxes</strong>
+        <span class="pull-right">
+          <a href="#" class="btn btn-default btn-xs">
+            Add
+          </a>
+          <a href="#" class="btn btn-default btn-xs">
+            Remove
+          </a>
+        </span>
+      </div>
+      <div class="panel-body">
+        <ul class="list-inline" style="margin-top:5px;margin-bottom:5px;">
+          {% for box in archive.boxes|sort(attribute="number") %}
+          <li><a href="{{ box.get_url() }}"># {{ box.number }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <p>
+      <span class="glyphicon glyphicon-time"></span>
+      Last updated: {{ moment(archive.last_update).format("LL") }}
+    </p>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
+{% block script %}
+<script>
+function editArchive(id) {
+    
+}
+</script>
+{% endblock %}

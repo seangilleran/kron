@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sean Gilleran</title>
+  <link href="{{ bootstrap_css }}" rel="stylesheet">
+  <link href="{{ font_awesome_css }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{{ jquery_1_js }}"></script>
+<script src="{{ bootstrap_js }}"></script>
+{{ moment.include_moment() }}
+{% block script %}{% endblock %}
+</body>
+</html>

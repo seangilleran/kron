@@ -4,7 +4,9 @@ from kron import db
 from kron.blog.models import Tag, Post
 
 
-blog = flask.Blueprint("blog", __name__, template_folder="templates/")
+blog = flask.Blueprint(
+    "blog", __name__, template_folder="templates"
+)
 
 
 @blog.route("/")
