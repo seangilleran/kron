@@ -1,6 +1,6 @@
 from flask_script import Manager
 
-import kron.app as kron
+import kron
 
 
 app = kron.create_app()
@@ -14,4 +14,3 @@ def _make_shell_context():
 
 if __name__ == '__main__':
     manager.run()
-

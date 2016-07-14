@@ -1,27 +1,45 @@
 import flask
 from flask_classy import FlaskView, route
 
-from kron.models.archive import Archive
+from kron.db import db
+import kron.utils as u
+from kron.views.base import BaseView
+from kron.models import Archive, Box
 
 
-class ArchivesView(FlaskView):
-    """"""
+class ArchivesView(BaseView):
+    resource = Archive
 
-    def index(self):
-        rv = [a.to_dict() for a in Archive.query.all()]
-        return flask.jsonify(rv)
-
-    def get(self, id):
-        rv = Archive.query.filter_by(id_hash=id).first()
-        if not rv:
-            flask.abort(404)
-        return flask.jsonify(rv.to_dict())
-
-    @route('/<id>/boxes/')
+    @route('<id>/boxes/')
     def get_boxes(self, id):
-        a = Archive.query.filter_by(id_hash=id).first()
-        if not a or not a.boxes:
-            flask.abort(404)
-        rv = [b.to_dict() for b in a.boxes]
-        return flask.jsonify(rv)
+        archive = u.find_or_404(Archive, id)
+        rv = [dict(
+            name=x.name, uri=x.get_uri()
+        ) for x in archive.boxes]
+        if not rv:
+            return ('', 204)
+        return u.make_res(rv, jsonify=True)
 
+    @route('<id>/boxes/<boxid>')
+    def get_box(self, id, boxid):
+        return u.redirect(flask.url_for('BoxesView:get', id=boxid))
+
+    @route('<id>/boxes/<boxid>', methods=['PUT'])
+    def add_box(self, id, boxid):
+        archive = u.find_or_404(Archive, id)
+        box = u.find_or_404(Box, boxid)
+        if box in archive.boxes:
+            flask.abort(409)  # Already has this box.
+        archive.boxes.append(box)
+        archive.save()
+        return ('', 204)
+
+    @route('<id>/boxes/<boxid>', methods=['DELETE'])
+    def remove_box(self, id, boxid):
+        archive = u.find_or_404(Archive, id)
+        box = u.find_or_404(Box, id)
+        if box not in archive.boxes:
+            flask.abort(415)  # Box not here, man.
+        archive.boxes.remove(box)
+        archive.save()
+        return ('', 204)

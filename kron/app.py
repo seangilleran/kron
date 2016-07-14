@@ -4,10 +4,8 @@ import uuid
 import flask
 
 from kron.db import db
-from kron.models.archive import Archive
-from kron.models.box import Box
-from kron.views.archives import ArchivesView
-from kron.views.boxes import BoxesView
+import kron.models as models
+import kron.views as views
 
 
 def create_app(*args, **kwargs):
@@ -29,8 +27,8 @@ def create_app(*args, **kwargs):
     )
 
     db.init_app(app)
-    ArchivesView.register(app)
-    BoxesView.register(app)
+    views.ArchivesView.register(app)
+    views.BoxesView.register(app)
 
     return app
 
@@ -40,6 +38,5 @@ def get_shell_context(app):
 
     return dict(
         app=app, db=db,
-        Box=Box, Archive=Archive
+        Box=models.Box, Archive=models.Archive
     )
-

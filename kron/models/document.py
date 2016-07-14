@@ -1,16 +1,20 @@
+from flask import url_for
+from flask import current_app as app
+
 from kron.db import db
-import kron.utils as u
+import kron.utils as utils
 
 
-class Archive(db.Model):
+class Document(db.Model):
 
-    __tableid__ = 101
-    __tablename__ = 'archives'
+    __tableid__ = 301
+    __tablename - 'documents'
     id = db.Column(db.Integer, primary_key=True)
     id_hash = db.Column(db.String(8), unique=True, index=True)
-    name = db.Column(db.String(256), unique=True)
+    name = db.Column(db.String(256))
+    img_url = db.Column(db.String(256))
     last_modified = db.Column(db.String(32))
-    boxes = db.relationship('Box', backref='archive', lazy='dynamic')
+    box_id = db.Column(db.Integer, db.ForeignKey('boxes.id'))
 
     def __init__(self, name, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)
@@ -31,9 +35,10 @@ class Archive(db.Model):
     def to_dict(self):
         rv = dict(
             name=self.name, uri=self.get_uri(),
-            boxes=[dict(
-                name=b.name, uri=b.get_uri()
-            ) for b in self.boxes] if self.boxes.first() else None
+            img_url=self.img_url,
+            box=dict(
+                name=self.box.name, uri=self.box.get_uri()
+            ) if self.box else None
         )
         for key in list(rv):
             if not rv[key]:
@@ -43,22 +48,23 @@ class Archive(db.Model):
     def get_uri(self):
         from flask import url_for
 
-        return url_for('ArchivesView:get', id=self.id_hash, _external=True)
+        return url_for('DocumentsView:get', id=self.id_hash, _external=True)
 
     def __str__(self):
         return str(self.to_dict())
 
     def __repr__(self):
-        return '<Archive {id}-{h} "{n}">'.format(
+        return '<Document {id}-{h} "{n}">'.format(
             id=self.id, h=self.id_hash, n=self.name
         )
 
 
-@db.event.listens_for(Archive, 'after_insert')
+@db.event.listens_for(Document, 'after_insert')
 def after_insert(mapper, connection, target):
-    u.update_event(Archive, connection, target)
+    u.update_event(Document, connection, target)
 
 
-@db.event.listens_for(Archive, 'after_update')
+@db.event.listens_for(Document, 'after_update')
 def after_update(mapper, connection, target):
-    u.update_event(Archive, connection, target)
+    u.update_event(Document, connection, target)
+
