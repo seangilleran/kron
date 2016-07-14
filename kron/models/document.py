@@ -2,13 +2,13 @@ from flask import url_for
 from flask import current_app as app
 
 from kron.db import db
-import kron.utils as utils
+import kron.utils as u
 
 
 class Document(db.Model):
 
     __tableid__ = 301
-    __tablename - 'documents'
+    __tablename__ = 'documents'
     id = db.Column(db.Integer, primary_key=True)
     id_hash = db.Column(db.String(8), unique=True, index=True)
     name = db.Column(db.String(256))
