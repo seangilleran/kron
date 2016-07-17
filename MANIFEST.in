@@ -1,0 +1,2 @@
+recursive-include kron/templates *
+recursive-include kroon/static *
