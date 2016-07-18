@@ -1,3 +1,5 @@
+from flask import url_for
+
 from kron.db import db
 import kron.utils as u
 
@@ -41,8 +43,6 @@ class Archive(db.Model):
         return rv
 
     def get_uri(self):
-        from flask import url_for
-
         return url_for('ArchivesView:get', id=self.id_hash, _external=True)
 
     def __str__(self):

@@ -1,3 +1,5 @@
+from flask import url_for
+
 from kron.db import db
 import kron.utils as u
 
@@ -8,7 +10,7 @@ class Box(db.Model):
     __tablename__ = 'boxes'
     id = db.Column(db.Integer, primary_key=True)
     id_hash = db.Column(db.String(8), unique=True, index=True)
-    name = db.Column(db.String(256))
+    name = db.Column(db.String(256), unique=True)
     last_modified = db.Column(db.String(32))
     archive_id = db.Column(db.Integer, db.ForeignKey('archives.id'))
     documents = db.relationship('Document', backref='box', lazy='dynamic')
@@ -37,8 +39,6 @@ class Box(db.Model):
         return rv
 
     def get_uri(self):
-        from flask import url_for
-
         return url_for('BoxesView:get', id=self.id_hash, _external=True)
 
     def save(self):

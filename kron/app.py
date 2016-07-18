@@ -1,3 +1,4 @@
+import logging
 import os
 import uuid
 
@@ -40,5 +41,6 @@ def get_shell_context(app):
 
     return dict(
         app=app, db=db,
-        Box=models.Box, Archive=models.Archive
+        Box=models.Box, Archive=models.Archive,
+        Tag=models.Tag, TagType=models.TagType
     )

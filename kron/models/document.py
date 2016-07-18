@@ -1,5 +1,4 @@
 from flask import url_for
-from flask import current_app as app
 
 from kron.db import db
 import kron.utils as u
@@ -11,7 +10,7 @@ class Document(db.Model):
     __tablename__ = 'documents'
     id = db.Column(db.Integer, primary_key=True)
     id_hash = db.Column(db.String(8), unique=True, index=True)
-    name = db.Column(db.String(256))
+    name = db.Column(db.String(256), unique=True)
     img_url = db.Column(db.String(256))
     last_modified = db.Column(db.String(32))
     box_id = db.Column(db.Integer, db.ForeignKey('boxes.id'))
@@ -46,8 +45,6 @@ class Document(db.Model):
         return rv
 
     def get_uri(self):
-        from flask import url_for
-
         return url_for('DocumentsView:get', id=self.id_hash, _external=True)
 
     def __str__(self):
