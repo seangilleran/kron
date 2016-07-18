@@ -4,6 +4,12 @@ from kron.db import db
 import kron.utils as u
 
 
+boxes_tags = db.Table(
+    'boxes_tags',
+    db.Column('box_id', db.Integer, db.ForeignKey('boxes.id')),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id')))
+
+
 class Box(db.Model):
 
     __tableid__ = 201
@@ -14,6 +20,7 @@ class Box(db.Model):
     last_modified = db.Column(db.String(32))
     archive_id = db.Column(db.Integer, db.ForeignKey('archives.id'))
     documents = db.relationship('Document', backref='box', lazy='dynamic')
+    tags = db.relationship('Tag', secondary=boxes_tags, backref='boxes')
 
     def __init__(self, name, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)

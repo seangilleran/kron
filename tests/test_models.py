@@ -4,28 +4,38 @@ import forgery_py
 
 import kron
 from kron import db
-import kron.models as models
+from kron.models import Archive, Box, Document, Tag, TagType
 
 
 class ModelsTestCase(unittest.TestCase):
     """Test data models."""
 
     def test_archive(self):
-        a = models.Archive(forgery_py.lorem_ipsum.title())
+        a = Archive(forgery_py.lorem_ipsum.title())
         a.save()
-        self.assertTrue(a in models.Archive.query.all())
+        self.assertTrue(a in Archive.query.all())
         self.assertTrue(a.id and a.id_hash)
+
+        t = Tag(forgery_py.lorem_ipsum.title())
+        t.save()
+        a.tags.append(t)
+        a.save()
+        self.assertTrue(t in a.tags and a in t.archives)
+        t.archives.remove(a)
+        t.save()
+        self.assertFalse(t in a.tags and a in t.archives)
+
         a.delete()
-        self.assertFalse(a in models.Archive.query.all())
+        self.assertFalse(a in Archive.query.all())
 
         lastid = ''
         match = False
         l = []
         for _ in range(1000):
-            l.append(models.Archive(forgery_py.lorem_ipsum.title()))
+            l.append(Archive(forgery_py.lorem_ipsum.title()))
         db.session.add_all(l)
         db.session.commit()
-        for a in models.Archive.query.all():
+        for a in Archive.query.all():
             if a.id_hash == lastid:
                 match = True
                 break
@@ -33,21 +43,31 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(match)
 
     def test_box(self):
-        b = models.Box(forgery_py.lorem_ipsum.title())
+        b = Box(forgery_py.lorem_ipsum.title())
         b.save()
-        self.assertTrue(b in models.Box.query.all())
+        self.assertTrue(b in Box.query.all())
         self.assertTrue(b.id and b.id_hash)
+
+        t = Tag(forgery_py.lorem_ipsum.title())
+        t.save()
+        b.tags.append(t)
+        b.save()
+        self.assertTrue(t in b.tags and b in t.boxes)
+        t.boxes.remove(b)
+        t.save()
+        self.assertFalse(t in b.tags and b in t.boxes)
+
         b.delete()
-        self.assertFalse(b in models.Box.query.all())
+        self.assertFalse(b in Box.query.all())
 
         lastid = ''
         match = False
         l = []
         for _ in range(1000):
-            l.append(models.Box(forgery_py.lorem_ipsum.title()))
+            l.append(Box(forgery_py.lorem_ipsum.title()))
         db.session.add_all(l)
         db.session.commit()
-        for b in models.Box.query.all():
+        for b in Box.query.all():
             if b.id_hash == lastid:
                 match = True
                 break
@@ -55,21 +75,31 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(match)
 
     def test_document(self):
-        d = models.Document(forgery_py.lorem_ipsum.title())
+        d = Document(forgery_py.lorem_ipsum.title())
         d.save()
-        self.assertTrue(d in models.Document.query.all())
+        self.assertTrue(d in Document.query.all())
         self.assertTrue(d.id and d.id_hash)
+
+        t = Tag(forgery_py.lorem_ipsum.title())
+        t.save()
+        d.tags.append(t)
+        d.save()
+        self.assertTrue(t in d.tags and d in t.documents)
+        t.documents.remove(d)
+        t.save()
+        self.assertFalse(t in d.tags and d in t.documents)
+
         d.delete()
-        self.assertFalse(d in models.Document.query.all())
+        self.assertFalse(d in Document.query.all())
 
         lastid = ''
         match = False
         l = []
         for _ in range(1000):
-            l.append(models.Document(forgery_py.lorem_ipsum.title()))
+            l.append(Document(forgery_py.lorem_ipsum.title()))
         db.session.add_all(l)
         db.session.commit()
-        for d in models.Document.query.all():
+        for d in Document.query.all():
             if d.id_hash == lastid:
                 match = True
                 break
@@ -77,21 +107,31 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(match)
 
     def test_tag(self):
-        t = models.Tag(forgery_py.lorem_ipsum.title())
+        t = Tag(forgery_py.lorem_ipsum.title())
         t.save()
-        self.assertTrue(t in models.Tag.query.all())
+        self.assertTrue(t in Tag.query.all())
         self.assertTrue(t.id and t.id_hash)
+
+        t1 = Tag(forgery_py.lorem_ipsum.title())
+        t1.save
+        t.tags.append(t1)
+        t.save()
+        self.assertTrue(t in t1.refs and t1 in t.tags)
+        t1.refs.remove(t)
+        t1.save()
+        self.assertFalse(t in t1.refs and t1 in t.tags)
+
         t.delete()
-        self.assertFalse(t in models.Tag.query.all())
+        self.assertFalse(t in Tag.query.all())
 
         lastid = ''
         match = False
         l = []
         for _ in range(100):
-            l.append(models.Tag(forgery_py.lorem_ipsum.title()))
+            l.append(Tag(forgery_py.lorem_ipsum.title()))
         db.session.add_all(l)
         db.session.commit()
-        for t in models.Tag.query.all():
+        for t in Tag.query.all():
             if t.id_hash == lastid:
                 match = True
                 break
@@ -99,21 +139,21 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(match)
 
     def test_tagtype(self):
-        tt = models.TagType(forgery_py.lorem_ipsum.title())
+        tt = TagType(forgery_py.lorem_ipsum.title())
         tt.save()
-        self.assertTrue(tt in models.TagType.query.all())
+        self.assertTrue(tt in TagType.query.all())
         self.assertTrue(tt.id and tt.id_hash)
         tt.delete()
-        self.assertFalse(tt in models.TagType.query.all())
+        self.assertFalse(tt in TagType.query.all())
 
         lastid = ''
         match = False
         l = []
         for _ in range(100):
-            l.append(models.TagType(forgery_py.lorem_ipsum.title()))
+            l.append(TagType(forgery_py.lorem_ipsum.title()))
         db.session.add_all(l)
         db.session.commit()
-        for tt in models.TagType.query.all():
+        for tt in TagType.query.all():
             if tt.id_hash == lastid:
                 match = True
                 break
@@ -121,8 +161,8 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(match)
 
     def test_archive_boxes(self):
-        a = models.Archive(forgery_py.lorem_ipsum.title())
-        b = models.Box(forgery_py.lorem_ipsum.title())
+        a = Archive(forgery_py.lorem_ipsum.title())
+        b = Box(forgery_py.lorem_ipsum.title())
         db.session.add_all([a, b])
         db.session.commit()
         a.boxes.append(b)
@@ -135,8 +175,8 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(b.archive)
 
     def test_box_documents(self):
-        b = models.Box(forgery_py.lorem_ipsum.title())
-        d = models.Document(forgery_py.lorem_ipsum.title())
+        b = Box(forgery_py.lorem_ipsum.title())
+        d = Document(forgery_py.lorem_ipsum.title())
         db.session.add_all([b, d])
         db.session.commit()
         d.box = b
@@ -149,8 +189,8 @@ class ModelsTestCase(unittest.TestCase):
         self.assertFalse(b.documents.first())
 
     def test_tag_tagtypes(self):
-        t = models.Tag(forgery_py.lorem_ipsum.title())
-        tt = models.TagType(forgery_py.lorem_ipsum.title())
+        t = Tag(forgery_py.lorem_ipsum.title())
+        tt = TagType(forgery_py.lorem_ipsum.title())
         db.session.add_all([t, tt])
         db.session.commit()
         t.tagtype = tt

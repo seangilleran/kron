@@ -4,6 +4,12 @@ from kron.db import db
 import kron.utils as u
 
 
+tags_tags = db.Table(
+    'tags_tags',
+    db.Column('l_tag_id', db.Integer, db.ForeignKey('tags.id')),
+    db.Column('r_tag_id', db.Integer, db.ForeignKey('tags.id')))
+
+
 class Tag(db.Model):
 
     __tableid__ = 401
@@ -13,6 +19,13 @@ class Tag(db.Model):
     name = db.Column(db.String(256), unique=True)
     last_modified = db.Column(db.String(32))
     tagtype_id = db.Column(db.Integer, db.ForeignKey('tagtypes.id'))
+    tags = db.relationship(
+        'Tag', secondary=tags_tags,
+        primaryjoin=(tags_tags.c.l_tag_id == id),
+        secondaryjoin=(tags_tags.c.r_tag_id == id),
+        backref=db.backref('refs', lazy='dynamic'),
+        lazy='dynamic')
+    
 
     def __init__(self, name, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)
